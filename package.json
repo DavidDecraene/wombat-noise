@@ -1,0 +1,15 @@
+{
+  "name": "com.wombat.barn.wombat-noise",
+  "version": "1.0.0",
+  "displayName": "Wombat Noise Functions",
+  "description": "Noise functions and utilities, wrapped around FastNoise",
+  "unity": "2019.1",
+  "dependencies": {
+ },
+ "keywords": [
+  ],
+  "author": {
+    "name": "David",
+    "url": "https://wombatbarn.com/"
+  }
+}
