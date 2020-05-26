@@ -4,18 +4,18 @@ using UnityEngine;
 
 namespace Wombat
 {
-    public class FrequencyFunction: INoiseFunction
+    public class FrequencyFunction: BaseNoiseFunction
     {
-        private readonly NoiseSampler noise;
+        private readonly INoiseFunction noise;
         private readonly float frequency;
         private float amplitude = 1;
-        private readonly bool d2 = true;
 
-        public FrequencyFunction(NoiseSampler noise, float frequency)
+        public FrequencyFunction(INoiseFunction noise, float frequency)
         {
             this.noise = noise;
             this.frequency = frequency;
         }
+
 
         public FrequencyFunction Amplitude(float amplitude)
         {
@@ -23,16 +23,14 @@ namespace Wombat
             return this;
         }
 
-        public float GetNoise(float x, float y)
+        public override float GetNoise(float x, float y)
         {
-            float result = noise.GetNoise2(x, y, frequency) * amplitude;
-            return result;
+            return noise.GetNoise(x * frequency, y * frequency) * amplitude;
         }
 
-        public float GetNoise(Vector3 position)
+        public override float GetNoise(float x, float y, float z)
         {
-            return d2 ? this.noise.GetNoise2(position, frequency) * amplitude
-                 : this.noise.GetNoise3(position, frequency) * amplitude;
+            return this.noise.GetNoise(x * frequency, y * frequency, z * frequency) * amplitude;
         }
     }
 }

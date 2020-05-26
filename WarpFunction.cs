@@ -41,5 +41,11 @@ namespace Wombat
             float v = this.source.GetNoise(x * frequency, y * frequency) * amplitude;
             return this.source.GetNoise(x + v, y + v);
         }
+
+        public float GetNoise(float x, float y, float z)
+        {
+            float v = this.source.GetNoise(x * frequency, y * frequency, z * frequency) * amplitude;
+            return this.source.GetNoise(x + v, y + v, z + v);
+        }
     }
 }

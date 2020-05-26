@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Wombat
 {
-    public class TerraceFunction : INoiseFunction
+    public class TerraceFunction : BaseNoiseFunction
     {
         private readonly INoiseFunction source;
         private float width = 0.4f;
@@ -20,15 +20,15 @@ namespace Wombat
             return this;
         }
 
-        public float GetNoise(Vector3 position)
+        public override float GetNoise(float x, float y)
         {
-            float v = this.source.GetNoise(position);
+            float v = this.source.GetNoise(x, y);
             return NoiseSampler.CreateTerraces(v, width);
         }
 
-        public float GetNoise(float x, float y)
+        public override float GetNoise(float x, float y, float z)
         {
-            float v = this.source.GetNoise(x, y);
+            float v = this.source.GetNoise(x, y, z);
             return NoiseSampler.CreateTerraces(v, width);
         }
     }

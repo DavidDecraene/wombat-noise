@@ -7,9 +7,29 @@ namespace Wombat
     public interface INoiseFunction {
         float GetNoise(Vector3 position);
         float GetNoise(float x, float y);
+        float GetNoise(float x, float y, float z);
     }
 
-    public class NoiseSampler
+    public abstract class BaseNoiseFunction: INoiseFunction
+    {
+        public abstract float GetNoise(float x, float y);
+        public abstract float GetNoise(float x, float y, float z);
+
+        public float GetNoise(Vector3 position)
+        {
+            return GetNoise(position.x, position.y, position.z);
+        }
+
+        public float GetNoise(Vector2 position)
+        {
+            return GetNoise(position.x, position.y);
+        }
+
+    }
+
+
+
+    public class NoiseSampler: INoiseFunction
     {
         private readonly FastNoise noise;
 
@@ -57,6 +77,27 @@ namespace Wombat
             return this.noise.GetNoise(position.x * frequency, position.y * frequency, position.z * frequency);
         }
 
+        public float GetNoise3(float x, float y, float z, float frequency)
+        {
+            return this.noise.GetNoise(x * frequency, y * frequency, z * frequency);
+        }
+
+
+        public float GetNoise(float x, float y)
+        {
+            return this.noise.GetNoise(x, y);
+        }
+
+        public float GetNoise(float x, float y, float z)
+        {
+            return this.noise.GetNoise(x, y, z);
+        }
+
+
+        public float GetNoise(Vector3 position)
+        {
+            return this.noise.GetNoise(position.x, position.y, position.z);
+        } 
         public float FractalBrownian2(float x, float y, int octaves, float persistence, float frequency, float amplitude)
         {
             float total = 0;
@@ -64,6 +105,20 @@ namespace Wombat
             for (int i = 0; i < octaves; i++)
             {
                 total += GetNoise2(x, y, frequency) * amplitude;
+                maxValue += amplitude;
+                amplitude *= persistence;
+                frequency *= 2;
+            }
+            return total / maxValue;
+        }
+
+        public float FractalBrownian3(float x, float y, float z, int octaves, float persistence, float frequency, float amplitude)
+        {
+            float total = 0;
+            float maxValue = 0;
+            for (int i = 0; i < octaves; i++)
+            {
+                total += GetNoise3(x, y, z, frequency) * amplitude;
                 maxValue += amplitude;
                 amplitude *= persistence;
                 frequency *= 2;
@@ -94,6 +149,19 @@ namespace Wombat
         {
             float noise = GetNoise2(position, frequencyX, frequencyY);
             noise = ShiftInterval(-1, 1, Mathf.PI, 0, noise);
+            return Mathf.Cos(noise * amplitude);
+        }
+
+        public float RadialSineWave(float x, float y, float z, float amplitude)
+        {
+            float noise = GetNoise(x, y, z );
+            noise = ShiftInterval(-1, 1, Mathf.PI, 0, noise);
+            return Mathf.Cos(noise * amplitude);
+        }
+
+        public float SineWave(float x, float y, float z, float amplitude)
+        {
+            float noise = this.noise.GetNoise(x, y, z);
             return Mathf.Cos(noise * amplitude);
         }
 

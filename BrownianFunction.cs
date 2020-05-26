@@ -31,6 +31,12 @@ namespace Wombat
 
         }
 
+        public float GetNoise(float x, float y, float z)
+        {
+            return this.noise.FractalBrownian3(x, y, z, octaves, persistence, frequency, 1) * amplitude;
+
+        }
+
         public float GetNoise(float x, float y)
         {
             return this.noise.FractalBrownian2(x, y, octaves, persistence, frequency, 1) * amplitude;

@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Wombat
 {
-    public class SineFunction: INoiseFunction
+    public class SineFunction: BaseNoiseFunction
     {
         private readonly NoiseSampler noise;
         private readonly float frequencyX, frequencyY;
@@ -36,23 +36,25 @@ namespace Wombat
             return this;
         }
 
-        public float GetNoise(float x, float y)
+        public override float GetNoise(float x, float y)
         {
 
+            float n = this.noise.GetNoise(x, y);
             if (radial)
             {
-                return noise.RadialSineWave2(x, y, frequencyX, frequencyY, amplitude);
+                n = NoiseSampler.ShiftInterval(-1, 1, Mathf.PI, 0, n);
             }
-            return noise.SineWave2(x, y, frequencyX, frequencyY, amplitude);
+            return Mathf.Cos(n * amplitude);
         }
 
-        public float GetNoise(Vector3 position)
+        public override float GetNoise(float x, float y, float z)
         {
+            float n = GetNoise(x, y, z);
             if (radial)
             {
-                return noise.RadialSineWave2(position, frequencyX, frequencyY, amplitude);
+                n = NoiseSampler.ShiftInterval(-1, 1, Mathf.PI, 0, n);
             }
-            return noise.SineWave2(position, frequencyX, frequencyY, amplitude);
+            return Mathf.Cos(n * amplitude);
         }
     }
 }
