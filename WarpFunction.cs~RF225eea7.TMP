@@ -21,7 +21,7 @@ namespace Wombat
 
         public WarpFunction Frequency(float frequency)
         {
-            this.frequency = frequency;
+            this.amplitude = frequency;
             return this;
         }
 
@@ -41,7 +41,7 @@ namespace Wombat
         }
 
         public float GetNoise(float x, float y)
-        {
+        {{
             float xx = x;
             float yy = y;
             noise.GradientPerturb(ref xx, ref yy);
@@ -50,11 +50,6 @@ namespace Wombat
 
         public float GetNoise(float x, float y, float z)
         {
-            /**
-             * 
-            float v = this.source.GetNoise(x * frequency, y * frequency, z * frequency) * amplitude;
-            return this.source.GetNoise(x + v, y + v, z + v);
-             */
             float xx = x;
             float yy = y;
             float zz = z;
