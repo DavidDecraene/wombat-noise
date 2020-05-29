@@ -6,6 +6,7 @@ namespace Wombat
 
     public struct CellularNoiseSample
     {
+        public float cellNoise;
         public float aValue;
         public float bValue;
         public float cValue;
@@ -13,9 +14,28 @@ namespace Wombat
         public float bdistance;
         public float cdistance;
 
+
+        public CellularNoiseSample(float aValue, float bValue, float cValue, 
+            float adistance, float bdistance, float cdistance,
+            float cellNoise)
+        {
+            this.aValue = aValue;
+            this.bValue = bValue;
+            this.cValue = cValue;
+            this.adistance = adistance;
+            this.bdistance = bdistance;
+            this.cdistance = cdistance;
+            this.cellNoise = cellNoise;
+        }
+
         public float ABSub()
         {
             return bdistance - adistance;
+        }
+
+        public float ABDiv()
+        {
+            return adistance / bdistance;
         }
 
         public float ACSub()
@@ -29,10 +49,9 @@ namespace Wombat
     {
         public float jitter = 0.45f;
         private readonly int m_seed = 42;
+        private INoiseFunction noiseSampler;
+       // int logged = 0;
 
-        private CellData a = new CellData(0, 0, 0, 999999);
-        private CellData b = new CellData(0, 0, 0, 999999);
-        private CellData c = new CellData(0, 0, 0, 999999);
 
         public CellularNoise(int seed)
         {
@@ -42,12 +61,20 @@ namespace Wombat
         {
         }
 
-        public void GetNoise(float x, float y, CellularNoiseSample data)
+        public CellularNoise UseCellNoiseSampler(INoiseFunction noiseSampler)
         {
+            this.noiseSampler = noiseSampler;
+            return this;
+        }
+
+        public CellularNoiseSample GetNoise(float x, float y)
+        {
+         CellData a = new CellData(0, 0, 0, 999999);
+         CellData b = new CellData(0, 0, 0, 999999);
+         CellData c = new CellData(0, 0, 0, 999999);
 
             int xr = FastRound(x);
             int yr = FastRound(y);
-            a.distance = b.distance = c.distance = 999999;
 
             for (int xi = xr - 1; xi <= xr + 1; xi++)
             {
@@ -76,18 +103,28 @@ namespace Wombat
                 }
             }
 
-            data.aValue = ValCoord2D(m_seed, a.x, a.y);
-            data.bValue = ValCoord2D(m_seed, b.x, b.y);
-            data.adistance = a.distance;
-            data.bdistance = b.distance;
-            data.cValue = ValCoord2D(m_seed, c.x, c.y);
-            data.cdistance = c.distance;
+            // if (logged++ < 5) Debug.Log("v " + data.aValue);
+            float cellNoise = 0;
+            if (noiseSampler != null)
+            {
+                Float2 vec = CELL_2D[Hash2D(m_seed, a.x, a.y) & 255];
+                cellNoise = noiseSampler.GetNoise(a.x + vec.x * jitter, a.y + vec.y * jitter);
+            }
+            return new CellularNoiseSample(
+                ValCoord2D(m_seed, a.x, a.y),
+                ValCoord2D(m_seed, b.x, b.y),
+                ValCoord2D(m_seed, c.x, c.y),
+                a.distance,
+                b.distance,
+                c.distance,
+                cellNoise
+                );
 
 
         }
 
 
-        private struct CellData
+        private class CellData
         {
             public float distance;
             public int x;
