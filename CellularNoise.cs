@@ -13,6 +13,17 @@ namespace Wombat
         public float bdistance;
         public float cdistance;
 
+
+        public CellularNoiseSample(float aValue, float bValue, float cValue, float adistance, float bdistance, float cdistance)
+        {
+            this.aValue = aValue;
+            this.bValue = bValue;
+            this.cValue = cValue;
+            this.adistance = adistance;
+            this.bdistance = bdistance;
+            this.cdistance = cdistance;
+        }
+
         public float ABSub()
         {
             return bdistance - adistance;
@@ -29,10 +40,8 @@ namespace Wombat
     {
         public float jitter = 0.45f;
         private readonly int m_seed = 42;
+        // int logged = 0;
 
-        private CellData a = new CellData(0, 0, 0, 999999);
-        private CellData b = new CellData(0, 0, 0, 999999);
-        private CellData c = new CellData(0, 0, 0, 999999);
 
         public CellularNoise(int seed)
         {
@@ -42,12 +51,14 @@ namespace Wombat
         {
         }
 
-        public void GetNoise(float x, float y, CellularNoiseSample data)
+        public CellularNoiseSample GetNoise(float x, float y)
         {
+            CellData a = new CellData(0, 0, 0, 999999);
+            CellData b = new CellData(0, 0, 0, 999999);
+            CellData c = new CellData(0, 0, 0, 999999);
 
             int xr = FastRound(x);
             int yr = FastRound(y);
-            a.distance = b.distance = c.distance = 999999;
 
             for (int xi = xr - 1; xi <= xr + 1; xi++)
             {
@@ -60,7 +71,7 @@ namespace Wombat
 
                     float newDistance = vecX * vecX + vecY * vecY; // vector length
                                                                    // newDistance, xi, yi;
-                    // The distance between a & b could be calculated... length of vector b - a. has overhead of course..
+                                                                   // The distance between a & b could be calculated... length of vector b - a. has overhead of course..
                     if (newDistance < a.distance)
                     {
                         c.distance = b.distance;
@@ -76,18 +87,22 @@ namespace Wombat
                 }
             }
 
-            data.aValue = ValCoord2D(m_seed, a.x, a.y);
-            data.bValue = ValCoord2D(m_seed, b.x, b.y);
-            data.adistance = a.distance;
-            data.bdistance = b.distance;
-            data.cValue = ValCoord2D(m_seed, c.x, c.y);
-            data.cdistance = c.distance;
+            // if (logged++ < 5) Debug.Log("v " + data.aValue);
+
+            return new CellularNoiseSample(
+                ValCoord2D(m_seed, a.x, a.y),
+                ValCoord2D(m_seed, b.x, b.y),
+                ValCoord2D(m_seed, c.x, c.y),
+                a.distance,
+                b.distance,
+                c.distance
+                );
 
 
         }
 
 
-        private struct CellData
+        private class CellData
         {
             public float distance;
             public int x;

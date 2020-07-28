@@ -4,16 +4,16 @@ using UnityEngine;
 
 namespace Wombat
 {
-    public class BrownianFunction : INoiseFunction
+    public class BrownianFunction : BaseNoiseFunction
     {
 
-        private readonly NoiseSampler noise;
+        private readonly INoiseFunction noise;
         private readonly float frequency;
         private readonly int octaves;
         private float persistence = 0.5f;
         private float amplitude = 1;
 
-        public BrownianFunction(NoiseSampler noise, float frequency, int octaves){
+        public BrownianFunction(INoiseFunction noise, float frequency, int octaves){
             this.noise = noise;
             this.frequency = frequency;
             this.octaves = octaves;
@@ -25,21 +25,38 @@ namespace Wombat
             return this;
         }
 
-        public float GetNoise(Vector3 position)
+        public override float GetNoise(float x, float y, float z)
         {
-            return this.noise.FractalBrownian2(position, octaves, persistence, frequency, 1) * amplitude;
-
+            float total = 0;
+            float maxValue = 0;
+            float fr = frequency;
+            float ampl = 1;
+            for (int i = 0; i < octaves; i++)
+            {
+                total += noise.GetNoise(x * fr, y * fr, z * fr) * ampl;
+                maxValue += ampl;
+                ampl *= persistence;
+                fr *= 2;
+            }
+            return (total / maxValue) * amplitude;
+    
+          //  return noise.FractalBrownian2(x, y);
         }
 
-        public float GetNoise(float x, float y, float z)
+        public override float GetNoise(float x, float y)
         {
-            return this.noise.FractalBrownian3(x, y, z, octaves, persistence, frequency, 1) * amplitude;
-
-        }
-
-        public float GetNoise(float x, float y)
-        {
-            return this.noise.FractalBrownian2(x, y, octaves, persistence, frequency, 1) * amplitude;
+            float total = 0;
+            float maxValue = 0;
+            float ampl = 1;
+            float fr = frequency;
+            for (int i = 0; i < octaves; i++)
+            {
+                total += noise.GetNoise(x * fr, y * fr) * ampl;
+                maxValue += ampl;
+                ampl *= persistence;
+                fr *= 2;
+            }
+            return (total / maxValue) * amplitude;
         }
     }
 }

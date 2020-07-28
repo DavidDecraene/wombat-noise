@@ -39,7 +39,7 @@ namespace Wombat
         public override float GetNoise(float x, float y)
         {
 
-            float n = this.noise.GetNoise(x, y);
+            float n = this.noise.GetNoise(x * frequencyX, y * frequencyY);
             if (radial)
             {
                 n = NoiseSampler.ShiftInterval(-1, 1, Mathf.PI, 0, n);
@@ -49,7 +49,7 @@ namespace Wombat
 
         public override float GetNoise(float x, float y, float z)
         {
-            float n = GetNoise(x, y, z);
+            float n = GetNoise(x * frequencyX, y * frequencyY, z);
             if (radial)
             {
                 n = NoiseSampler.ShiftInterval(-1, 1, Mathf.PI, 0, n);
